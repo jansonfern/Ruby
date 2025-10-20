@@ -1,0 +1,217 @@
+<% content_for :title, "Responder: #{@questionnaire.title}" %>
+
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="display-4 fw-bold text-dark">Responder Quiz</h1>
+          <p class="lead text-muted"><%= @questionnaire.title %></p>
+        </div>
+        <div class="text-end">
+          <div class="badge bg-primary fs-6 mb-2">
+            <i class="bi bi-clock me-1"></i>
+            <%= @questionnaire.duration_minutes %> min
+          </div>
+          <div class="badge bg-info fs-6">
+            <i class="bi bi-list-ul me-1"></i>
+            <%= @questionnaire.total_questions %> perguntas
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= form_with url: submit_questionnaire_path(@questionnaire), method: :post, local: true, class: "quiz-form" do |form| %>
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <% @questions.each_with_index do |question, index| %>
+              <div class="question-item mb-5" data-question="<%= question.id %>">
+                <h4 class="question-title mb-3">
+                  <span class="badge bg-primary me-2"><%= index + 1 %></span>
+                  <%= question.enunciation %>
+                </h4>
+                
+                <div class="options-container">
+                  <% question.question_options.ordered.each do |option| %>
+                    <div class="form-check mb-2">
+                      <%= form.radio_button "answers[#{question.id}]", option.id, 
+                          class: "form-check-input", 
+                          id: "question_#{question.id}_option_#{option.id}" %>
+                      <%= form.label "answers[#{question.id}]", option.title, 
+                          class: "form-check-label", 
+                          for: "question_#{question.id}_option_#{option.id}" %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+              
+              <% unless index == @questions.length - 1 %>
+                <hr class="my-4">
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card shadow-sm sticky-top" style="top: 20px;">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-info-circle me-2"></i>
+              Instruções
+            </h5>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled small">
+              <li class="mb-2">
+                <i class="bi bi-check-circle text-success me-2"></i>
+                Leia cada pergunta com atenção
+              </li>
+              <li class="mb-2">
+                <i class="bi bi-check-circle text-success me-2"></i>
+                Selecione apenas uma resposta por pergunta
+              </li>
+              <li class="mb-2">
+                <i class="bi bi-check-circle text-success me-2"></i>
+                Você pode alterar suas respostas antes de enviar
+              </li>
+              <li class="mb-2">
+                <i class="bi bi-clock text-warning me-2"></i>
+                Tempo limite: <%= @questionnaire.duration_minutes %> minutos
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mt-3">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-list-check me-2"></i>
+              Progresso
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="progress mb-3" style="height: 20px;">
+              <div class="progress-bar" role="progressbar" style="width: 0%" id="progress-bar">
+                <span id="progress-text">0/<%= @questions.count %></span>
+              </div>
+            </div>
+            <div class="text-center">
+              <small class="text-muted">
+                <span id="answered-count">0</span> de <%= @questions.count %> perguntas respondidas
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-grid gap-2 mt-3">
+          <%= form.submit "Enviar Quiz", 
+              class: "btn btn-success btn-lg", 
+              id: "submit-btn",
+              data: { 
+                confirm: "Tem certeza que deseja enviar o quiz? Você não poderá alterar as respostas depois.",
+                disable_with: "Enviando..."
+              } %>
+          <%= link_to "Cancelar", questionnaire_path(@questionnaire), 
+              class: "btn btn-outline-secondary btn-lg" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const progressBar = document.getElementById('progress-bar');
+  const progressText = document.getElementById('progress-text');
+  const answeredCount = document.getElementById('answered-count');
+  const submitBtn = document.getElementById('submit-btn');
+  const totalQuestions = <%= @questions.count %>;
+  
+  // Atualizar progresso
+  function updateProgress() {
+    const answered = document.querySelectorAll('input[type="radio"]:checked').length;
+    const percentage = (answered / totalQuestions) * 100;
+    
+    progressBar.style.width = percentage + '%';
+    progressText.textContent = answered + '/' + totalQuestions;
+    answeredCount.textContent = answered;
+    
+    // Habilitar/desabilitar botão de envio
+    submitBtn.disabled = answered < totalQuestions;
+    
+    if (answered < totalQuestions) {
+      submitBtn.classList.add('btn-outline-success');
+      submitBtn.classList.remove('btn-success');
+    } else {
+      submitBtn.classList.remove('btn-outline-success');
+      submitBtn.classList.add('btn-success');
+    }
+  }
+  
+  // Adicionar listeners para todas as opções de resposta
+  document.querySelectorAll('input[type="radio"]').forEach(function(radio) {
+    radio.addEventListener('change', updateProgress);
+  });
+  
+  // Atualizar progresso inicial
+  updateProgress();
+  
+  // Timer opcional (pode ser implementado se necessário)
+  // const durationMinutes = <%= @questionnaire.duration_minutes %>;
+  // let timeLeft = durationMinutes * 60;
+  // 
+  // const timer = setInterval(function() {
+  //   timeLeft--;
+  //   if (timeLeft <= 0) {
+  //     clearInterval(timer);
+  //     document.querySelector('.quiz-form').submit();
+  //   }
+  // }, 1000);
+});
+</script>
+
+<style>
+.question-item {
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.question-title {
+  color: #495057;
+  font-weight: 600;
+}
+
+.options-container .form-check {
+  padding-left: 2rem;
+}
+
+.options-container .form-check-input {
+  margin-top: 0.25rem;
+}
+
+.options-container .form-check-label {
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.options-container .form-check-label:hover {
+  background-color: #e9ecef;
+}
+
+.sticky-top {
+  position: sticky;
+  top: 20px;
+}
+
+#submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+</style>

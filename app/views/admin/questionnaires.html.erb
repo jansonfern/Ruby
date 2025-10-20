@@ -1,0 +1,187 @@
+<% content_for :title, "Gerenciar Questionários" %>
+
+<div class="container py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="display-4 fw-bold text-dark">Gerenciar Questionários</h1>
+          <p class="lead text-muted">Visualize e gerencie todos os questionários do sistema</p>
+        </div>
+        <div>
+          <%= link_to new_questionnaire_path, class: "btn btn-primary me-2" do %>
+            <i class="bi bi-plus-circle me-2"></i>
+            Novo Questionário
+          <% end %>
+          <%= link_to admin_dashboard_path, class: "btn btn-outline-secondary" do %>
+            <i class="bi bi-arrow-left me-2"></i>
+            Voltar ao Dashboard
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Questionnaires Table -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-file-text me-2"></i>
+            Lista de Questionários (<%= @questionnaires.count %>)
+          </h5>
+        </div>
+        <div class="card-body">
+          <% if @questionnaires.any? %>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Descrição</th>
+                    <th>Perguntas</th>
+                    <th>Criado por</th>
+                    <th>Criado em</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @questionnaires.each do |questionnaire| %>
+                    <tr>
+                      <td><%= questionnaire.id %></td>
+                      <td>
+                        <h6 class="mb-0"><%= questionnaire.title %></h6>
+                      </td>
+                      <td>
+                        <small class="text-muted">
+                          <%= truncate(questionnaire.description, length: 50) %>
+                        </small>
+                      </td>
+                      <td>
+                        <span class="badge bg-info">
+                          <%= questionnaire.questions.count %> perguntas
+                        </span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <div class="avatar-sm bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                            <%= questionnaire.user.name.first.upcase %>
+                          </div>
+                          <div>
+                            <small><%= questionnaire.user.name %></small>
+                          </div>
+                        </div>
+                      </td>
+                      <td><%= questionnaire.created_at.strftime("%d/%m/%Y %H:%M") %></td>
+                      <td>
+                        <% if questionnaire.questions.any? %>
+                          <span class="badge bg-success">
+                            <i class="bi bi-check-circle me-1"></i>
+                            Ativo
+                          </span>
+                        <% else %>
+                          <span class="badge bg-warning">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            Sem perguntas
+                          </span>
+                        <% end %>
+                      </td>
+                      <td>
+                        <div class="btn-group" role="group">
+                          <%= link_to questionnaire_path(questionnaire), class: "btn btn-sm btn-outline-info" do %>
+                            <i class="bi bi-eye"></i>
+                          <% end %>
+                          <%= link_to edit_questionnaire_path(questionnaire), class: "btn btn-sm btn-outline-primary" do %>
+                            <i class="bi bi-pencil"></i>
+                          <% end %>
+                          <%= link_to questionnaire_path(questionnaire), method: :delete, 
+                              class: "btn btn-sm btn-outline-danger",
+                              data: { 
+                                confirm: "Tem certeza que deseja excluir este questionário?",
+                                bs_toggle: "tooltip",
+                                bs_title: "Excluir questionário"
+                              } do %>
+                            <i class="bi bi-trash"></i>
+                          <% end %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center py-5">
+              <i class="bi bi-file-text display-1 text-muted"></i>
+              <h5 class="mt-3">Nenhum questionário encontrado</h5>
+              <p class="text-muted">Os questionários criados aparecerão aqui.</p>
+              <%= link_to new_questionnaire_path, class: "btn btn-primary mt-3" do %>
+                <i class="bi bi-plus-circle me-2"></i>
+                Criar Primeiro Questionário
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.card {
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn {
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.table th {
+  border-top: none;
+  font-weight: 600;
+  color: #495057;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+.btn-group .btn {
+  margin-right: 2px;
+}
+
+.btn-group .btn:last-child {
+  margin-right: 0;
+}
+</style>
+
+<script>
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+});
+</script>
+

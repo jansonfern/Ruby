@@ -1,0 +1,53 @@
+<%= form_with(model: @questionnaire, class: "needs-validation", data: { turbo: true }) do |f| %>
+  <% if @questionnaire.errors.any? %>
+    <div class="alert alert-danger">
+      <h6 class="mb-2">Foram encontrados <%= @questionnaire.errors.count %> erro(s):</h6>
+      <ul class="mb-0">
+        <% @questionnaire.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= f.label :title, class: "form-label" %>
+    <%= f.text_field :title, class: "form-control", required: true %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :code, class: "form-label" %>
+    <%= f.text_field :code, class: "form-control", required: true %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :description, class: "form-label" %>
+    <%= f.text_area :description, rows: 4, class: "form-control", required: true %>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-4">
+      <%= f.label :duration_minutes, class: "form-label" %>
+      <%= f.number_field :duration_minutes, class: "form-control", min: 1, max: 300, required: true %>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :total_questions, class: "form-label" %>
+      <%= f.number_field :total_questions, class: "form-control", min: 1, max: 100, required: true %>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      <div class="form-check">
+        <%= f.check_box :active, class: "form-check-input", id: "questionnaire_active" %>
+        <%= f.label :active, class: "form-check-label", for: "questionnaire_active" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 d-flex gap-2">
+    <%= f.submit class: "btn btn-primary" %>
+    <%= link_to "Cancelar", (@questionnaire.persisted? ? @questionnaire : questionnaires_path), class: "btn btn-secondary" %>
+  </div>
+<% end %>
+
+
+
+

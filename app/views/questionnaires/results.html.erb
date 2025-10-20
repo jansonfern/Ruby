@@ -1,0 +1,242 @@
+<% content_for :title, "Resultados: #{@questionnaire.title}" %>
+
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="display-4 fw-bold text-dark">Resultados do Quiz</h1>
+          <p class="lead text-muted"><%= @questionnaire.title %></p>
+        </div>
+        <div class="text-end">
+          <div class="badge bg-primary fs-6 mb-2">
+            <i class="bi bi-calendar me-1"></i>
+            <%= @user_result.submitted_at.strftime("%d/%m/%Y às %H:%M") %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <% if @user_result %>
+    <div class="row">
+      <div class="col-lg-8">
+        <!-- Resumo do Resultado -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-body text-center">
+            <div class="row">
+              <div class="col-md-4">
+                <div class="display-6 fw-bold text-<%= @user_result.grade == 'A' ? 'success' : @user_result.grade == 'B' ? 'info' : @user_result.grade == 'C' ? 'warning' : 'danger' %>">
+                  <%= @user_result.score %>%
+                </div>
+                <p class="text-muted mb-0">Pontuação</p>
+              </div>
+              <div class="col-md-4">
+                <div class="display-6 fw-bold text-<%= @user_result.grade == 'A' ? 'success' : @user_result.grade == 'B' ? 'info' : @user_result.grade == 'C' ? 'warning' : 'danger' %>">
+                  <%= @user_result.grade %>
+                </div>
+                <p class="text-muted mb-0">Nota</p>
+              </div>
+              <div class="col-md-4">
+                <div class="display-6 fw-bold text-primary">
+                  <%= @answer_histories.count { |h| h.correct? } %>/<%= @answer_histories.count %>
+                </div>
+                <p class="text-muted mb-0">Acertos</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detalhes das Respostas -->
+        <div class="card shadow-sm">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-list-check me-2"></i>
+              Detalhes das Respostas
+            </h5>
+          </div>
+          <div class="card-body">
+            <% @answer_histories.each_with_index do |history, index| %>
+              <div class="answer-item mb-4 p-3 rounded <%= history.correct? ? 'bg-light-success' : 'bg-light-danger' %>">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h6 class="mb-0">
+                    <span class="badge bg-secondary me-2"><%= index + 1 %></span>
+                    <%= history.question.enunciation %>
+                  </h6>
+                  <span class="badge bg-<%= history.correct? ? 'success' : 'danger' %>">
+                    <i class="bi bi-<%= history.correct? ? 'check' : 'x' %>-circle me-1"></i>
+                    <%= history.correct? ? 'Correta' : 'Incorreta' %>
+                  </span>
+                </div>
+                
+                <div class="mt-3">
+                  <p class="mb-2">
+                    <strong>Sua resposta:</strong>
+                    <span class="<%= history.correct? ? 'text-success' : 'text-danger' %>">
+                      <%= history.question_option&.title || 'Não respondida' %>
+                    </span>
+                  </p>
+                  
+                  <% unless history.correct? %>
+                    <% correct_option = history.question.question_options.find(&:correct?) %>
+                    <% if correct_option %>
+                      <p class="mb-0">
+                        <strong>Resposta correta:</strong>
+                        <span class="text-success"><%= correct_option.title %></span>
+                      </p>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+              
+              <% unless index == @answer_histories.length - 1 %>
+                <hr class="my-3">
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <!-- Informações do Quiz -->
+        <div class="card shadow-sm mb-3">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-info-circle me-2"></i>
+              Informações do Quiz
+            </h5>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled">
+              <li class="mb-2">
+                <strong>Código:</strong><br>
+                <%= @questionnaire.code %>
+              </li>
+              <li class="mb-2">
+                <strong>Duração:</strong><br>
+                <%= @questionnaire.duration_minutes %> minutos
+              </li>
+              <li class="mb-2">
+                <strong>Total de perguntas:</strong><br>
+                <%= @questionnaire.total_questions %>
+              </li>
+              <li class="mb-2">
+                <strong>Data de envio:</strong><br>
+                <%= @user_result.submitted_at.strftime("%d/%m/%Y às %H:%M") %>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="card shadow-sm">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-gear me-2"></i>
+              Ações
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="d-grid gap-2">
+              <%= link_to "Responder Novamente", take_questionnaire_path(@questionnaire), 
+                  class: "btn btn-primary" %>
+              <%= link_to "Ver Questionário", questionnaire_path(@questionnaire), 
+                  class: "btn btn-outline-secondary" %>
+              <%= link_to "Todos os Quizzes", questionnaires_path, 
+                  class: "btn btn-outline-secondary" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interpretação da Nota -->
+        <div class="card shadow-sm mt-3">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-award me-2"></i>
+              Interpretação
+            </h5>
+          </div>
+          <div class="card-body">
+            <% case @user_result.grade %>
+            <% when 'A' %>
+              <div class="text-center">
+                <i class="bi bi-trophy text-success display-4"></i>
+                <h5 class="text-success mt-2">Excelente!</h5>
+                <p class="text-muted small">Você demonstrou domínio completo do conteúdo.</p>
+              </div>
+            <% when 'B' %>
+              <div class="text-center">
+                <i class="bi bi-star text-info display-4"></i>
+                <h5 class="text-info mt-2">Muito Bom!</h5>
+                <p class="text-muted small">Você tem um bom conhecimento do assunto.</p>
+              </div>
+            <% when 'C' %>
+              <div class="text-center">
+                <i class="bi bi-check-circle text-warning display-4"></i>
+                <h5 class="text-warning mt-2">Bom</h5>
+                <p class="text-muted small">Você tem conhecimento básico, mas pode melhorar.</p>
+              </div>
+            <% when 'D' %>
+              <div class="text-center">
+                <i class="bi bi-exclamation-triangle text-warning display-4"></i>
+                <h5 class="text-warning mt-2">Precisa Melhorar</h5>
+                <p class="text-muted small">Recomendamos revisar o conteúdo.</p>
+              </div>
+            <% else %>
+              <div class="text-center">
+                <i class="bi bi-x-circle text-danger display-4"></i>
+                <h5 class="text-danger mt-2">Insuficiente</h5>
+                <p class="text-muted small">É necessário estudar mais o conteúdo.</p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body text-center">
+            <i class="bi bi-exclamation-circle text-warning display-1"></i>
+            <h3 class="mt-3">Nenhum resultado encontrado</h3>
+            <p class="text-muted">Você ainda não respondeu este quiz.</p>
+            <%= link_to "Responder Quiz", take_questionnaire_path(@questionnaire), 
+                class: "btn btn-primary btn-lg" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<style>
+.bg-light-success {
+  background-color: #d1edff !important;
+  border-left: 4px solid #28a745;
+}
+
+.bg-light-danger {
+  background-color: #f8d7da !important;
+  border-left: 4px solid #dc3545;
+}
+
+.answer-item {
+  transition: all 0.2s ease;
+}
+
+.answer-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.display-4 {
+  font-size: 2.5rem;
+}
+
+@media (max-width: 768px) {
+  .display-4 {
+    font-size: 2rem;
+  }
+}
+</style>

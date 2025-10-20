@@ -1,0 +1,41 @@
+<div class="container mt-5">
+  <h1>Cadastro de Administrador</h1>
+
+  <% if @user.errors.any? %>
+    <div class="alert alert-danger">
+      <p><strong>Corrija os erros abaixo:</strong></p>
+      <ul>
+        <% @user.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: @user, url: admin_signup_path, local: true do |f| %>
+    <div class="mb-3">
+      <%= f.label :name, "Nome" %>
+      <%= f.text_field :name, class: "form-control", required: true %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :email, "Email" %>
+      <%= f.email_field :email, class: "form-control", required: true %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :password, "Senha" %>
+      <%= f.password_field :password, class: "form-control", required: true, autocomplete: "new-password" %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :password_confirmation, "Confirmação de senha" %>
+      <%= f.password_field :password_confirmation, class: "form-control", required: true, autocomplete: "new-password" %>
+    </div>
+
+    <div class="mt-4">
+      <%= f.submit "Cadastrar administrador", class: "btn btn-primary" %>
+      <%= link_to "Voltar", authenticated_root_path, class: "btn btn-secondary ms-2" %>
+    </div>
+  <% end %>
+</div>

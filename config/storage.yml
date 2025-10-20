@@ -1,0 +1,10 @@
+test:
+  service: Disk
+  root: <%= Rails.root.join("tmp/storage") %>
+
+local:
+  service: Disk
+  root: <%= Rails.root.join("storage") %>
+
+
+http://localhost:3000/questionnaires/5/questions/11/question_options

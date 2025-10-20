@@ -1,0 +1,134 @@
+<% content_for :title, @questionnaire.title %>
+
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="display-4 fw-bold text-dark"><%= @questionnaire.title %></h1>
+          <p class="lead text-muted">Código: <%= @questionnaire.code %></p>
+        </div>
+        <div class="text-end">
+          <div class="badge bg-primary fs-6 mb-2">
+            <i class="bi bi-clock me-1"></i>
+            <%= @questionnaire.duration_minutes %> min
+          </div>
+          <div class="badge bg-info fs-6">
+            <i class="bi bi-list-ul me-1"></i>
+            <%= @questionnaire.total_questions %> perguntas
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h3 class="card-title">Descrição</h3>
+          <p class="card-text"><%= @questionnaire.description %></p>
+          
+          <h4 class="mt-4">Perguntas</h4>
+          <% if @questions.any? %>
+            <div class="list-group">
+              <% @questions.each_with_index do |question, index| %>
+                <div class="list-group-item">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                      <h6 class="mb-1">Pergunta <%= index + 1 %></h6>
+                      <p class="mb-1"><%= question.enunciation %></p>
+                      <small class="text-muted">
+                        <%= question.question_options.count %> opções
+                      </small>
+                    </div>
+                    <span class="badge bg-secondary">#<%= question.position %></span>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle me-2"></i>
+              Este questionário ainda não possui perguntas.
+            </div>
+          <% end %>
+        </div>
+        <div class="card-footer">
+          <div class="d-flex gap-2">
+            <%= link_to "Responder Quiz", take_questionnaire_path(@questionnaire), 
+                class: "btn btn-primary btn-lg" %>
+            <%= link_to "Voltar", questionnaires_path, 
+                class: "btn btn-outline-secondary btn-lg" %>
+            <% if policy(@questionnaire).edit? %>
+              <%= link_to "Editar", edit_questionnaire_path(@questionnaire), 
+                  class: "btn btn-outline-warning btn-lg" %>
+              <%= link_to "Gerenciar Perguntas", questionnaire_questions_path(@questionnaire), 
+                  class: "btn btn-outline-info btn-lg" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Informações</h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled">
+            <li class="mb-2">
+              <strong>Criado por:</strong><br>
+              <%= @questionnaire.user.name %>
+            </li>
+            <li class="mb-2">
+              <strong>Status:</strong><br>
+              <span class="badge bg-<%= @questionnaire.active? ? 'success' : 'secondary' %>">
+                <%= @questionnaire.active? ? 'Ativo' : 'Inativo' %>
+              </span>
+            </li>
+            <li class="mb-2">
+              <strong>Duração:</strong><br>
+              <%= @questionnaire.duration_minutes %> minutos
+            </li>
+            <li class="mb-2">
+              <strong>Perguntas:</strong><br>
+              <%= @questionnaire.total_questions %> perguntas
+            </li>
+            <% if @questionnaire.questions.any? %>
+              <li class="mb-2">
+                <strong>Perguntas criadas:</strong><br>
+                <%= @questionnaire.questions.count %> de <%= @questionnaire.total_questions %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+
+      <% if user_signed_in? && current_user.user_results.exists?(questionnaire: @questionnaire) %>
+        <div class="card shadow-sm mt-3">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Seu Resultado</h5>
+          </div>
+          <div class="card-body">
+            <% user_result = current_user.user_results.find_by(questionnaire: @questionnaire) %>
+            <div class="text-center">
+              <div class="display-6 fw-bold text-<%= user_result.grade == 'A' ? 'success' : user_result.grade == 'B' ? 'info' : user_result.grade == 'C' ? 'warning' : 'danger' %>">
+                <%= user_result.score %>%
+              </div>
+              <div class="h4 text-<%= user_result.grade == 'A' ? 'success' : user_result.grade == 'B' ? 'info' : user_result.grade == 'C' ? 'warning' : 'danger' %>">
+                Nota <%= user_result.grade %>
+              </div>
+              <small class="text-muted">
+                <%= user_result.submitted_at.strftime("%d/%m/%Y às %H:%M") %>
+              </small>
+            </div>
+            <%= link_to "Ver Detalhes", results_questionnaire_path(@questionnaire), 
+                class: "btn btn-outline-primary w-100 mt-3" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

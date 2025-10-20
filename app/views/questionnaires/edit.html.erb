@@ -1,0 +1,23 @@
+<% content_for :title, "Editar Questionário" %>
+
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Editar Questionário</h5>
+        </div>
+        <div class="card-body">
+          <%= render "form" %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-3">
+    <%= link_to "Voltar", @questionnaire, class: "btn btn-link" %>
+  </div>
+</div>
+
+
+
+
