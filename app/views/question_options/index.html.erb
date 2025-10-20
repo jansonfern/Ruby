@@ -1,0 +1,85 @@
+<% content_for :title, "Opções de Resposta - #{@questionnaire.title}" %>
+
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="display-4 fw-bold text-dark">Opções de Resposta</h1>
+          <p class="lead text-muted">Questionário: <%= @questionnaire.title %></p>
+          <p class="text-muted">Pergunta: <%= @question.enunciation %></p>
+        </div>
+        <div>
+          <%= link_to "Nova Opção", new_questionnaire_question_question_option_path(@questionnaire, @question), 
+              class: "btn btn-primary btn-lg" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <% if @question_options.any? %>
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <div class="row">
+              <% @question_options.each_with_index do |option, index| %>
+                <div class="col-md-6 mb-3">
+                  <div class="card border-<%= option.correct? ? 'success' : 'light' %> h-100">
+                    <div class="card-body">
+                      <div class="d-flex align-items-start">
+                        <span class="badge bg-<%= option.correct? ? 'success' : 'secondary' %> me-3 fs-6">
+                          <%= ('A'..'Z').to_a[index] %>
+                        </span>
+                        <div class="flex-grow-1">
+                          <h6 class="card-title <%= option.correct? ? 'text-success fw-bold' : '' %>">
+                            <%= option.title %>
+                          </h6>
+                          <small class="text-muted">Posição: #<%= option.position %></small>
+                        </div>
+                        <% if option.correct? %>
+                          <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        <% end %>
+                      </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                      <div class="btn-group w-100" role="group">
+                        <%= link_to "Editar", edit_questionnaire_question_question_option_path(@questionnaire, @question, option), 
+                            class: "btn btn-outline-warning btn-sm" %>
+                        <%= link_to "Excluir", questionnaire_question_question_option_path(@questionnaire, @question, option), 
+                            method: :delete, 
+                            data: { confirm: "Tem certeza que deseja excluir esta opção?" },
+                            class: "btn btn-outline-danger btn-sm" %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <div class="card shadow-sm">
+          <div class="card-body text-center py-5">
+            <i class="bi bi-list-ul display-1 text-muted mb-3"></i>
+            <h3 class="text-muted">Nenhuma opção encontrada</h3>
+            <p class="text-muted mb-4">Esta pergunta ainda não possui opções de resposta.</p>
+            <%= link_to "Criar Primeira Opção", new_questionnaire_question_question_option_path(@questionnaire, @question), 
+                class: "btn btn-primary btn-lg" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="d-flex gap-2">
+        <%= link_to "Voltar às Perguntas", questionnaire_questions_path(@questionnaire), 
+            class: "btn btn-outline-secondary" %>
+        <%= link_to "Voltar ao Questionário", questionnaire_path(@questionnaire), 
+            class: "btn btn-outline-primary" %>
+      </div>
+    </div>
+  </div>
+</div>

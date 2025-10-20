@@ -1,0 +1,101 @@
+<% content_for :title, "Resultados do Quiz" %>
+
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <!-- Results Header -->
+      <div class="card text-center mb-4">
+        <div class="card-body py-5">
+          <h1 class="display-5 fw-bold text-dark mb-3">Resultados do Quiz: <%= @questionnaire.title %></h1>
+          <p class="lead text-muted mb-4">Parabéns por completar o questionário!</p>
+
+          <div class="row justify-content-center g-4 mb-4">
+            <div class="col-auto">
+              <div class="text-center">
+                <div class="display-1 fw-bold text-success"><%= @user_result.score %>%</div>
+                <div class="text-muted">Score</div>
+              </div>
+            </div>
+            <div class="col-auto">
+              <div class="text-center">
+                <div class="display-1 fw-bold text-primary"><%= @user_result.grade %></div>
+                <div class="text-muted">Nota</div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- Performance Message -->
+          <div class="alert alert-info" role="alert">
+            <% if @user_result.score >= 80 %>
+              <i class="bi bi-trophy me-2"></i>
+              <strong>Excelente!</strong> Você demonstrou um ótimo conhecimento no assunto.
+            <% elsif @user_result.score >= 60 %>
+              <i class="bi bi-check-circle me-2"></i>
+              <strong>Bom trabalho!</strong> Você tem uma base sólida, mas pode melhorar ainda mais.
+            <% else %>
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>Continue estudando!</strong> Revise o conteúdo e tente novamente.
+            <% end %>
+          </div>
+
+          <!-- Actions -->
+          <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+            <%= link_to questionnaires_path, class: "btn btn-outline-secondary" do %>
+              <i class="bi bi-list me-2"></i>
+              Ver Outros Questionários
+            <% end %>
+            <%= link_to questionnaire_path(@questionnaire.id), class: "btn btn-primary" do %>
+              <i class="bi bi-info-circle me-2"></i>
+              Ver Detalhes do Quiz
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detailed Results -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Suas Respostas</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-4">
+            <% @user_answer_histories.each_with_index do |history, index| %>
+              <div class="col-12">
+                <div class="border-bottom pb-3">
+                  <h6 class="fw-semibold mb-2">Pergunta <%= index + 1 %>: <%= history.question_enunciation %></h6>
+                  <div class="row g-2">
+                    <div class="col-12">
+                      <p class="mb-1">
+                        <strong>Sua resposta:</strong> 
+                        <span class="<%= history.correct ? 'text-success' : 'text-danger' %> fw-semibold">
+                          <%= history.selected_option_title %>
+                        </span>
+                      </p>
+                    </div>
+                    <% unless history.correct %>
+                      <div class="col-12">
+                        <p class="mb-0">
+                          <strong>Resposta correta:</strong> 
+                          <span class="text-success fw-semibold">
+                            <%= history.correct_option_title %>
+                          </span>
+                        </p>
+                      </div>
+                    <% end %>
+                    <div class="col-12">
+                      <span class="badge <%= history.correct ? 'bg-success' : 'bg-danger' %>">
+                        <i class="bi bi-<%= history.correct ? 'check' : 'x' %>-circle me-1"></i>
+                        <%= history.correct ? 'Correta' : 'Incorreta' %>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

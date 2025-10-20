@@ -1,0 +1,97 @@
+<% content_for :title, "Nova Pergunta - #{@questionnaire.title}" %>
+
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="display-4 fw-bold text-dark">Nova Pergunta</h1>
+          <p class="lead text-muted">Questionário: <%= @questionnaire.title %></p>
+        </div>
+        <div>
+          <%= link_to "Voltar", questionnaire_questions_path(@questionnaire), 
+              class: "btn btn-outline-secondary" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Criar Nova Pergunta</h5>
+        </div>
+        <div class="card-body">
+          <%= form_with model: [@questionnaire, @question], local: true, class: "needs-validation", novalidate: true do |form| %>
+            <% if @question.errors.any? %>
+              <div class="alert alert-danger">
+                <h6>Foram encontrados <%= @question.errors.count %> erro(s):</h6>
+                <ul class="mb-0">
+                  <% @question.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="mb-3">
+              <%= form.label :enunciation, "Enunciado da Pergunta", class: "form-label fw-bold" %>
+              <%= form.text_area :enunciation, 
+                  class: "form-control", 
+                  rows: 4,
+                  placeholder: "Digite o enunciado da pergunta aqui...",
+                  required: true %>
+              <div class="form-text">
+                Descreva claramente a pergunta que será apresentada aos usuários.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :position, "Posição", class: "form-label fw-bold" %>
+              <%= form.number_field :position, 
+                  class: "form-control", 
+                  value: @questionnaire.questions.count + 1,
+                  min: 1,
+                  max: @questionnaire.total_questions,
+                  required: true %>
+              <div class="form-text">
+                Ordem em que a pergunta aparecerá no questionário (1 a <%= @questionnaire.total_questions %>).
+              </div>
+            </div>
+
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Próximo passo:</strong> Após criar a pergunta, você poderá adicionar as opções de resposta.
+            </div>
+
+            <div class="d-flex gap-2">
+              <%= form.submit "Criar Pergunta", class: "btn btn-primary btn-lg" %>
+              <%= link_to "Cancelar", questionnaire_questions_path(@questionnaire), 
+                  class: "btn btn-outline-secondary btn-lg" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Validação do formulário
+(function() {
+  'use strict';
+  window.addEventListener('load', function() {
+    var forms = document.getElementsByClassName('needs-validation');
+    var validation = Array.prototype.filter.call(forms, function(form) {
+      form.addEventListener('submit', function(event) {
+        if (form.checkValidity() === false) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  }, false);
+})();
+</script>
